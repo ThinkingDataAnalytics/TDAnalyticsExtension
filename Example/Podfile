@@ -1,0 +1,13 @@
+use_frameworks!
+
+platform :ios, '10.0'
+
+target 'ThinkingDataAnalyticsExtension_Example' do
+  pod 'ThinkingDataAnalyticsExtension', :path => '../'
+
+  target 'ThinkingDataAnalyticsExtension_Tests' do
+    inherit! :search_paths
+
+    
+  end
+end
