@@ -1,5 +1,5 @@
 PODS:
-  - ThinkingDataAnalyticsExtension (0.1.0):
+  - ThinkingDataAnalyticsExtension (1.0.0):
     - ThinkingDataCore (= 1.0.0)
   - ThinkingDataCore (1.0.0):
     - ThinkingDataCore/Main (= 1.0.0)
@@ -20,7 +20,7 @@ EXTERNAL SOURCES:
     :path: "../"
 
 SPEC CHECKSUMS:
-  ThinkingDataAnalyticsExtension: 2b57668a7a3ee7c7afb1c67e095f7ad41a73dd25
+  ThinkingDataAnalyticsExtension: 44e983473af62e7dc96e987d53c91e82c97150c4
   ThinkingDataCore: bbddbbb34d9fcee5ba6d92886a11c91f2f25cdfa
 
 PODFILE CHECKSUM: 7706fe64101c33701e7877a45bcc1dd48ce48b3f
