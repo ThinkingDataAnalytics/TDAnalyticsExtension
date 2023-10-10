@@ -1,19 +1,19 @@
 //
-//  TDAnalyticsSendService.m
+//  TDAnalyticsExtensionSendService.m
 //  ThinkingDataAnalyticsExtension
 //
 //  Created by 杨雄 on 2023/9/13.
 //
 
-#import "TDAnalyticsSendService.h"
+#import "TDAnalyticsExtensionSendService.h"
 #import "TDExtensionNetwork.h"
 #import "TDExtensionDeviceInfo.h"
 
 static NSUInteger const K_BUFFER_SIZE = 0;
-static const char * K_TD_ANALYTICS_NETWORK_QUEUE = "cn.thinkingdata.TDAnalyticsExtension.network";
+static const char * K_TD_ANALYTICS_NETWORK_QUEUE = "cn.thinkingdata.TDAnalyticsExtensionExtension.network";
 static dispatch_queue_t g_network_queue = nil;
 
-@interface TDAnalyticsSendService ()
+@interface TDAnalyticsExtensionSendService ()
 @property (nonatomic, assign) TDMode sdkMode;
 @property (nonatomic, assign) NSInteger bufferSize;
 @property (nonatomic, copy) NSString *appId;
@@ -24,7 +24,7 @@ static dispatch_queue_t g_network_queue = nil;
 
 @end
 
-@implementation TDAnalyticsSendService
+@implementation TDAnalyticsExtensionSendService
 
 + (void)initialize {
     static dispatch_once_t ThinkingOnceToken;
@@ -73,12 +73,12 @@ static dispatch_queue_t g_network_queue = nil;
 
 - (void)flush {
     NSArray *events = [self.buffer copy];
-    __weak typeof(self) weakSelf = self;
+    [self.buffer removeAllObjects];
     [self sendNetwork:events completion:^(BOOL result) {
         if (result) {
-            dispatch_async(weakSelf.trackQueue, ^{
-                [weakSelf.buffer removeObjectsInArray:events];
-            });
+            // Request success.
+        } else {
+            // Failed. Restore data to buffer
         }
     }];
 }

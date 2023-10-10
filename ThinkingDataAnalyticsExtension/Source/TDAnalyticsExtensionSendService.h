@@ -1,16 +1,16 @@
 //
-//  TDAnalyticsSendService.h
+//  TDAnalyticsExtensionSendService.h
 //  ThinkingDataAnalyticsExtension
 //
 //  Created by 杨雄 on 2023/9/13.
 //
 
 #import <Foundation/Foundation.h>
-#import "TDAnalyticsConstPublic.h"
+#import "TDAnalyticsExtensionConstPublic.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface TDAnalyticsSendService : NSObject
+@interface TDAnalyticsExtensionSendService : NSObject
 
 - (instancetype)initWithAppId:(NSString *)appId receiverUrl:(NSString *)receiverUrl;
 

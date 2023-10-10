@@ -6,7 +6,7 @@
 //
 
 #import "TDExtensionNetwork.h"
-#import "TDAnalyticsConstPublic.h"
+#import "TDAnalyticsExtensionConstPublic.h"
 #import "TDExtensionSecurityPolicy.h"
 #import <ThinkingDataCore/NSData+TDGzip.h>
 #import <ThinkingDataCore/TDJSONUtil.h>
@@ -90,12 +90,12 @@ static NSString *kTADatasType = @"TA-Datas-Type";
         NSHTTPURLResponse *urlResponse = (NSHTTPURLResponse *)response;
         if ([urlResponse statusCode] == 200) {
             flushSucc = YES;
-            NSLog(@"[ThinkingData] flush success sendContent---->:%@",flushDic);
+            NSLog(@"[ThinkingData] send data, count: %ld", recordArray.count);
             if (!data) {
                 return;
             }
             id result = [NSJSONSerialization JSONObjectWithData:data options:kNilOptions error:nil];
-            NSLog(@"[ThinkingData] flush success responseData---->%@",result);
+            NSLog(@"[ThinkingData] send data, response: %@",result);
             
             @try {
                 if ([result isKindOfClass:[NSDictionary class]]) {

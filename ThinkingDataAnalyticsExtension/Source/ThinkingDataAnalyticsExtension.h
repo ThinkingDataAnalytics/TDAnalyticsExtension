@@ -7,4 +7,4 @@
 
 #import <Foundation/Foundation.h>
 
-#import <ThinkingDataAnalyticsExtension/TDAnalytics.h>
+#import <ThinkingDataAnalyticsExtension/TDAnalyticsExtension.h>

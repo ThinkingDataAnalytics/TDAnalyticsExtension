@@ -1,14 +1,14 @@
 //
-//  TDAnalyticsConfig.m
+//  TDAnalyticsExtensionConfig.m
 //  ThinkingDataAnalyticsExtension
 //
 //  Created by 杨雄 on 2023/9/13.
 //
 
-#import "TDAnalyticsConfig.h"
-#import "NSString+TDAnalytics.h"
+#import "TDAnalyticsExtensionConfig.h"
+#import "NSString+TDAnalyticsExtension.h"
 
-@implementation TDAnalyticsConfig
+@implementation TDAnalyticsExtensionConfig
 
 //MARK: - setter
 

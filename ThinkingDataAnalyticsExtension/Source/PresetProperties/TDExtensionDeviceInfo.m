@@ -7,7 +7,7 @@
 
 #import <UIKit/UIKit.h>
 #import "TDExtensionDeviceInfo.h"
-#import "TDAnalyticsConstPublic.h"
+#import "TDAnalyticsExtensionConstPublic.h"
 #import "TDExtensionPresetManager.h"
 #import "TDExtensionPresetConst.h"
 #import "TDExtensionReachability.h"

@@ -1,12 +1,12 @@
 //
-//  TDAnalyticsConstPublic.h
+//  TDAnalyticsExtensionConstPublic.h
 //  Pods
 //
 //  Created by 杨雄 on 2023/9/13.
 //
 
-#ifndef TDAnalyticsConstPublic_h
-#define TDAnalyticsConstPublic_h
+#ifndef TDAnalyticsExtensionConstPublic_h
+#define TDAnalyticsExtensionConstPublic_h
 
 #import <Foundation/Foundation.h>
 
@@ -24,4 +24,4 @@ typedef NS_ENUM(NSUInteger, TDMode) {
     TDModeDebug = 1 << 1,
 };
 
-#endif /* TDAnalyticsConstPublic_h */
+#endif /* TDAnalyticsExtensionConstPublic_h */

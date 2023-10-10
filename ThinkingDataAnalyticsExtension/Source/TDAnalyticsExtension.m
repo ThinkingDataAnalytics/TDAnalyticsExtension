@@ -1,37 +1,37 @@
 //
-//  TDAnalytics.m
+//  TDAnalyticsExtension.m
 //  ThinkingDataAnalyticsExtension
 //
 //  Created by 杨雄 on 2023/9/13.
 //
 
-#import "TDAnalytics.h"
-#import "TDAnalyticsConfig.h"
-#import "TDAnalyticsSendService.h"
+#import "TDAnalyticsExtension.h"
+#import "TDAnalyticsExtensionConfig.h"
+#import "TDAnalyticsExtensionSendService.h"
 #import "TDExtensionDeviceInfo.h"
 
-@interface TDAnalytics ()
-@property (nonatomic, strong) TDAnalyticsConfig *config;
+@interface TDAnalyticsExtension ()
+@property (nonatomic, strong) TDAnalyticsExtensionConfig *config;
 @property (nonatomic, strong) NSTimer *timer;
-@property (nonatomic, strong) TDAnalyticsSendService *sendService;
-@property (nonatomic, copy) NSString *accountId;
-@property (nonatomic, copy) NSString *distinctId;
+@property (nonatomic, strong) TDAnalyticsExtensionSendService *sendService;
+@property (atomic, copy) NSString *accountId;
+@property (atomic, copy) NSString *distinctId;
 
 @end
 
-static NSMutableDictionary<NSString *, TDAnalytics *> * g_SDK_instances = nil;
+static NSMutableDictionary<NSString *, TDAnalyticsExtension *> * g_SDK_instances = nil;
 static dispatch_queue_t g_track_queue = nil;
 
-static const char * K_TD_ANALYTICS_TRACK_QUEUE = "cn.thinkingdata.TDAnalyticsExtension.track";
+static const char * K_TD_ANALYTICS_TRACK_QUEUE = "cn.thinkingdata.TDAnalyticsExtensionExtension.track";
 
-@implementation TDAnalytics
+@implementation TDAnalyticsExtension
 
 /**
  Set the distinct ID to replace the default UUID distinct ID.
  @param distinctId distinctId
  */
 + (void)setDistinctId:(NSString *)distinctId {
-    TDAnalytics *analytics = [TDAnalytics defaultInstance];
+    TDAnalyticsExtension *analytics = [TDAnalyticsExtension defaultInstance];
     analytics.distinctId = distinctId;
 }
 
@@ -41,7 +41,7 @@ static const char * K_TD_ANALYTICS_TRACK_QUEUE = "cn.thinkingdata.TDAnalyticsExt
  @return distinctId
  */
 + (NSString *)getDistinctId {
-    TDAnalytics *analytics = [TDAnalytics defaultInstance];
+    TDAnalyticsExtension *analytics = [TDAnalyticsExtension defaultInstance];
     return analytics.distinctId;
 }
 
@@ -50,7 +50,7 @@ static const char * K_TD_ANALYTICS_TRACK_QUEUE = "cn.thinkingdata.TDAnalyticsExt
  @param accountId accountId
  */
 + (void)login:(NSString *)accountId {
-    TDAnalytics *analytics = [TDAnalytics defaultInstance];
+    TDAnalyticsExtension *analytics = [TDAnalyticsExtension defaultInstance];
     analytics.accountId = accountId;
 }
 
@@ -58,12 +58,12 @@ static const char * K_TD_ANALYTICS_TRACK_QUEUE = "cn.thinkingdata.TDAnalyticsExt
  Clearing the account ID will not upload user logout events.
  */
 + (void)logout {
-    TDAnalytics *analytics = [TDAnalytics defaultInstance];
+    TDAnalyticsExtension *analytics = [TDAnalyticsExtension defaultInstance];
     analytics.accountId = nil;
 }
 
 + (void)startWithAppId:(NSString *)appId serverUrl:(NSString *)serverUrl {
-    TDAnalyticsConfig *config = [[TDAnalyticsConfig alloc] init];
+    TDAnalyticsExtensionConfig *config = [[TDAnalyticsExtensionConfig alloc] init];
     config.appId = appId;
     config.serverUrl = serverUrl;
     config.flushTimeInterval = 0;
@@ -71,7 +71,7 @@ static const char * K_TD_ANALYTICS_TRACK_QUEUE = "cn.thinkingdata.TDAnalyticsExt
     [self startWithConfig:config];
 }
 
-+ (void)startWithConfig:(TDAnalyticsConfig *)config {
++ (void)startWithConfig:(TDAnalyticsExtensionConfig *)config {
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
         g_SDK_instances = [NSMutableDictionary dictionary];
@@ -90,16 +90,19 @@ static const char * K_TD_ANALYTICS_TRACK_QUEUE = "cn.thinkingdata.TDAnalyticsExt
         return;
     }
     
-    TDAnalytics *analytics = [TDAnalytics instanceWithAppID:config.appId];
+    TDAnalyticsExtension *analytics = [TDAnalyticsExtension instanceWithAppID:config.appId];
     if (analytics) {
         return;
     }
-    analytics = [[TDAnalytics alloc] init];
-    g_SDK_instances[config.appId] = analytics;
+    analytics = [[TDAnalyticsExtension alloc] init];
+
+    dispatch_sync(g_track_queue, ^{
+        g_SDK_instances[config.appId] = analytics;
+    });
     
     analytics.config = config;
     
-    TDAnalyticsSendService *sendService = [[TDAnalyticsSendService alloc] initWithAppId:config.appId receiverUrl:config.serverUrl];
+    TDAnalyticsExtensionSendService *sendService = [[TDAnalyticsExtensionSendService alloc] initWithAppId:config.appId receiverUrl:config.serverUrl];
     [sendService setupSDKMode:TDModeNormal];
     [sendService setupBufferSize:config.bufferSize];
     [sendService setupTrackQueue:g_track_queue];
@@ -115,7 +118,7 @@ static const char * K_TD_ANALYTICS_TRACK_QUEUE = "cn.thinkingdata.TDAnalyticsExt
 }
 
 + (void)track:(NSString *)eventName properties:(NSDictionary *)properties {
-    TDAnalytics *analytics = [TDAnalytics defaultInstance];
+    TDAnalyticsExtension *analytics = [TDAnalyticsExtension defaultInstance];
     if (eventName && [eventName isKindOfClass:NSString.class] && eventName.length > 0) {
         [analytics innerTrackEvent:eventName type:@"track" properties:properties];
     } else {
@@ -124,7 +127,7 @@ static const char * K_TD_ANALYTICS_TRACK_QUEUE = "cn.thinkingdata.TDAnalyticsExt
 }
 
 + (void)close {
-    TDAnalytics *analytics = [TDAnalytics defaultInstance];
+    TDAnalyticsExtension *analytics = [TDAnalyticsExtension defaultInstance];
     [analytics.timer invalidate];
     [analytics innerClose];
 }
@@ -138,20 +141,32 @@ static const char * K_TD_ANALYTICS_TRACK_QUEUE = "cn.thinkingdata.TDAnalyticsExt
 //MARK: - Private methods
 
 + (void)flush {
-    TDAnalytics *analytics = [TDAnalytics defaultInstance];
+    TDAnalyticsExtension *analytics = [TDAnalyticsExtension defaultInstance];
     [analytics innerFlush];
 }
 
-+ (TDAnalytics * _Nullable)defaultInstance {
-    return [TDAnalytics instanceWithAppID:nil];
++ (TDAnalyticsExtension * _Nullable)defaultInstance {
+    return [TDAnalyticsExtension instanceWithAppID:nil];
 }
 
-+ (TDAnalytics * _Nullable)instanceWithAppID:(NSString * _Nullable)appId {
-    if (!appId) {
-        NSArray<NSString *> *allKeys = g_SDK_instances.allKeys;
-        return [g_SDK_instances objectForKey:allKeys.firstObject];
++ (TDAnalyticsExtension * _Nullable)instanceWithAppID:(NSString * _Nullable)appId {
+    __block TDAnalyticsExtension *analytics = nil;
+    
+    void(^block)(void) = ^{
+        if (appId) {
+            analytics = g_SDK_instances[appId];
+        } else {
+            NSArray<NSString *> *allKeys = g_SDK_instances.allKeys;
+            analytics = [g_SDK_instances objectForKey:allKeys.firstObject];
+        }
+    };
+    if (dispatch_queue_get_label(DISPATCH_CURRENT_QUEUE_LABEL) == dispatch_queue_get_label(g_track_queue)) {
+        block();
+    } else {
+        dispatch_sync(g_track_queue, block);
     }
-    return g_SDK_instances[appId];
+    
+    return analytics;
 }
 
 - (void)innerTrackEvent:(NSString *)eventName type:(NSString *)type properties:(NSDictionary *)properties {

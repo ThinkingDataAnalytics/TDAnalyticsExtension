@@ -1,13 +1,13 @@
 //
-//  NSString+TDAnalytics.m
+//  NSString+TDAnalyticsExtension.m
 //  ThinkingDataAnalyticsExtension
 //
 //  Created by 杨雄 on 2023/9/13.
 //
 
-#import "NSString+TDAnalytics.h"
+#import "NSString+TDAnalyticsExtension.h"
 
-@implementation NSString (TDAnalytics)
+@implementation NSString (TDAnalyticsExtension)
 
 - (NSString *)td_trim {
     NSString *string = [self stringByReplacingOccurrencesOfString:@" " withString:@""];

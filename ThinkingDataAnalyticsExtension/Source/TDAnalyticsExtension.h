@@ -1,5 +1,5 @@
 //
-//  TDAnalytics.h
+//  TDAnalyticsExtension.h
 //  ThinkingDataAnalyticsExtension
 //
 //  Created by 杨雄 on 2023/9/13.
@@ -9,7 +9,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface TDAnalytics : NSObject
+@interface TDAnalyticsExtension : NSObject
 
 /// Init SDK
 /// @param appId appId in TE

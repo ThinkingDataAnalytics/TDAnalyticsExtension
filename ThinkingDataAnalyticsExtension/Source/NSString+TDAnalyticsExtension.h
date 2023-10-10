@@ -1,5 +1,5 @@
 //
-//  NSString+TDAnalytics.h
+//  NSString+TDAnalyticsExtension.h
 //  ThinkingDataAnalyticsExtension
 //
 //  Created by 杨雄 on 2023/9/13.
@@ -9,7 +9,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface NSString (TDAnalytics)
+@interface NSString (TDAnalyticsExtension)
 
 - (NSString *)td_trim;
 - (NSString *)td_formatUrlString;
