@@ -9,6 +9,8 @@
 #import "TDAnalyticsExtensionConfig.h"
 #import "TDAnalyticsExtensionSendService.h"
 #import "TDExtensionDeviceInfo.h"
+#import "NSString+TDAnalyticsExtension.h"
+#import <ThinkingDataCore/ThinkingDataCore.h>
 
 @interface TDAnalyticsExtension ()
 @property (nonatomic, strong) TDAnalyticsExtensionConfig *config;
@@ -32,7 +34,12 @@ static const char * K_TD_ANALYTICS_TRACK_QUEUE = "cn.thinkingdata.TDAnalyticsExt
  */
 + (void)setDistinctId:(NSString *)distinctId {
     TDAnalyticsExtension *analytics = [TDAnalyticsExtension defaultInstance];
-    analytics.distinctId = distinctId;
+    if ([distinctId isKindOfClass:NSString.class] && distinctId.length > 0) {
+        analytics.distinctId = distinctId;
+        [TDAnalyticsExtension storeDistinctId:distinctId appId:analytics.config.appId];
+    } else {
+        NSLog(@"[ThinkingData] distinct id con't be nil");
+    }
 }
 
 /**
@@ -52,6 +59,7 @@ static const char * K_TD_ANALYTICS_TRACK_QUEUE = "cn.thinkingdata.TDAnalyticsExt
 + (void)login:(NSString *)accountId {
     TDAnalyticsExtension *analytics = [TDAnalyticsExtension defaultInstance];
     analytics.accountId = accountId;
+    [TDAnalyticsExtension storeDistinctId:accountId appId:analytics.config.appId];
 }
 
 /**
@@ -60,6 +68,7 @@ static const char * K_TD_ANALYTICS_TRACK_QUEUE = "cn.thinkingdata.TDAnalyticsExt
 + (void)logout {
     TDAnalyticsExtension *analytics = [TDAnalyticsExtension defaultInstance];
     analytics.accountId = nil;
+    [TDAnalyticsExtension storeDistinctId:nil appId:analytics.config.appId];
 }
 
 + (void)startWithAppId:(NSString *)appId serverUrl:(NSString *)serverUrl {
@@ -81,21 +90,38 @@ static const char * K_TD_ANALYTICS_TRACK_QUEUE = "cn.thinkingdata.TDAnalyticsExt
     NSString *appId = config.appId;
     NSString *receiverUrl = config.serverUrl;
     
-    BOOL validateAppId = appId && [appId isKindOfClass:NSString.class] && appId.length;
-    BOOL validateReceiverUrl = receiverUrl && [receiverUrl isKindOfClass:NSString.class] && receiverUrl.length;
-    if (!(validateAppId && validateReceiverUrl)) {
+    if ([appId isKindOfClass:NSString.class] && [receiverUrl isKindOfClass:NSString.class]) {
+        appId = [appId td_trim];
+        receiverUrl = [receiverUrl td_formatUrlString];
+    } else {
         NSString *msg = @"[ThinkingData][Error] appId, serverUrl is con't be nil.";
         NSAssert(NO, msg);
         NSLog(@"%@", msg);
         return;
     }
     
+    if (!(appId.length > 0 && receiverUrl.length > 0)) {
+        NSString *msg = @"[ThinkingData][Error] appId, serverUrl format is error.";
+        NSAssert(NO, msg);
+        NSLog(@"%@", msg);
+        return;
+    }
+    config.appId = appId;
+    config.serverUrl = receiverUrl;
+    
     TDAnalyticsExtension *analytics = [TDAnalyticsExtension instanceWithAppID:config.appId];
     if (analytics) {
         return;
     }
     analytics = [[TDAnalyticsExtension alloc] init];
-
+    
+    NSString *distinctId = [TDAnalyticsExtension distinctIdInStoreWithAppId:appId];
+    if (!distinctId) {
+        distinctId = [TDCoreDeviceInfo deviceId];
+        [TDAnalyticsExtension storeDistinctId:distinctId appId:appId];
+    }    
+    analytics.distinctId = distinctId;
+    
     dispatch_sync(g_track_queue, ^{
         g_SDK_instances[config.appId] = analytics;
     });
@@ -187,15 +213,22 @@ static const char * K_TD_ANALYTICS_TRACK_QUEUE = "cn.thinkingdata.TDAnalyticsExt
     }
     eventDict[@"#event_name"] = eventName;
     NSDictionary *presetProperties = [TDExtensionDeviceInfo presetInfo];
+        
     NSMutableDictionary *customProperties = [NSMutableDictionary dictionaryWithDictionary:presetProperties];
     [customProperties addEntriesFromDictionary:properties];
 
-    NSDateFormatter *fmt = [[NSDateFormatter alloc] init];
-    fmt.dateFormat = @"yyyy-MM-dd HH:mm:ss.SSS";
-    eventDict[@"#time"] = [fmt stringFromDate:[NSDate date]];
+    eventDict[@"#time"] = [NSDate date];
     eventDict[@"#uuid"] = [NSUUID UUID].UUIDString;
     eventDict[@"#type"] = type;
     eventDict[@"properties"] = customProperties;
+    
+    NSDateFormatter *fmt = [[NSDateFormatter alloc] init];
+    fmt.dateFormat = @"yyyy-MM-dd HH:mm:ss.SSS";
+    fmt.timeZone = [NSTimeZone localTimeZone];
+    fmt.calendar = [[NSCalendar alloc] initWithCalendarIdentifier:NSCalendarIdentifierGregorian];
+
+    eventDict = [TDJSONUtil formatDateWithFormatter:fmt dict:eventDict];
+
     
     dispatch_async(g_track_queue, ^{
         [self.sendService sendEvent:eventDict];
@@ -212,6 +245,54 @@ static const char * K_TD_ANALYTICS_TRACK_QUEUE = "cn.thinkingdata.TDAnalyticsExt
     dispatch_async(g_track_queue, ^{
         [self.sendService closeService];
     });
+}
+
++ (void)storeAccountId:(NSString *)accountId appId:(NSString *)appId {
+    @synchronized (TDAnalyticsExtension.class) {
+        if ([appId isKindOfClass:NSString.class]) {
+            NSString *key = [NSString stringWithFormat:@"%@_account_id", appId];
+            if (accountId == nil) {
+                [[NSUserDefaults standardUserDefaults] removeObjectForKey:key];
+            } else {
+                [[NSUserDefaults standardUserDefaults] setObject:accountId forKey:key];
+            }
+        }
+    }
+}
+
++ (void)storeDistinctId:(NSString *)distinctId appId:(NSString *)appId {
+    @synchronized (TDAnalyticsExtension.class) {
+        if ([appId isKindOfClass:NSString.class]) {
+            NSString *key = [NSString stringWithFormat:@"%@_distinct_id", appId];
+            if (distinctId == nil) {
+                [[NSUserDefaults standardUserDefaults] removeObjectForKey:key];
+            } else {
+                [[NSUserDefaults standardUserDefaults] setObject:distinctId forKey:key];
+            }
+        }
+    }
+}
+
++ (nullable NSString *)accountIdInStoreWithAppId:(NSString *)appId {
+    NSString *value = nil;
+    @synchronized (TDAnalyticsExtension.class) {
+        if ([appId isKindOfClass:NSString.class]) {
+            NSString *key = [NSString stringWithFormat:@"%@_account_id", appId];
+            value = [[NSUserDefaults standardUserDefaults] stringForKey:key];
+        }
+    }
+    return value;
+}
+
++ (nullable NSString *)distinctIdInStoreWithAppId:(NSString *)appId {
+    NSString *value = nil;
+    @synchronized (TDAnalyticsExtension.class) {
+        if ([appId isKindOfClass:NSString.class]) {
+            NSString *key = [NSString stringWithFormat:@"%@_distinct_id", appId];
+            value = [[NSUserDefaults standardUserDefaults] stringForKey:key];
+        }
+    }
+    return value;
 }
 
 @end

@@ -1,3 +1,10 @@
+### v1.1.0
+**Date:** 2025/04/23
+
+**Notes:**
+
+* Improve SDK stability
+
 ### v1.0.1
 **Date:** 2025/01/08
 

@@ -1,10 +1,10 @@
 PODS:
   - ThinkingDataAnalyticsExtension (1.0.0):
-    - ThinkingDataCore (= 1.0.0)
-  - ThinkingDataCore (1.0.0):
-    - ThinkingDataCore/Main (= 1.0.0)
-  - ThinkingDataCore/iOS (1.0.0)
-  - ThinkingDataCore/Main (1.0.0):
+    - ThinkingDataCore (>= 1.0.1)
+  - ThinkingDataCore (1.0.2):
+    - ThinkingDataCore/Main (= 1.0.2)
+  - ThinkingDataCore/iOS (1.0.2)
+  - ThinkingDataCore/Main (1.0.2):
     - ThinkingDataCore/iOS
     - ThinkingDataCore/OSX
 
@@ -20,9 +20,9 @@ EXTERNAL SOURCES:
     :path: "../"
 
 SPEC CHECKSUMS:
-  ThinkingDataAnalyticsExtension: 44e983473af62e7dc96e987d53c91e82c97150c4
-  ThinkingDataCore: bbddbbb34d9fcee5ba6d92886a11c91f2f25cdfa
+  ThinkingDataAnalyticsExtension: ded47bf26d7375d6b85afcb3d74e50966d20a475
+  ThinkingDataCore: 381f642f0c17b5d75621bb068fffb78882569e9e
 
-PODFILE CHECKSUM: 7706fe64101c33701e7877a45bcc1dd48ce48b3f
+PODFILE CHECKSUM: 4a3077edc16a8e8dd3dfc679a338b3939d227f2e
 
-COCOAPODS: 1.12.1
+COCOAPODS: 1.15.2

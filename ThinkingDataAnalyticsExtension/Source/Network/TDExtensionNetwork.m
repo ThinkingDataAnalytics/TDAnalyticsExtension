@@ -8,8 +8,12 @@
 #import "TDExtensionNetwork.h"
 #import "TDAnalyticsExtensionConstPublic.h"
 #import "TDExtensionSecurityPolicy.h"
-#import <ThinkingDataCore/NSData+TDGzip.h>
-#import <ThinkingDataCore/TDJSONUtil.h>
+
+#if __has_include(<ThinkingDataCore/ThinkingDataCore.h>)
+#import <ThinkingDataCore/ThinkingDataCore.h>
+#else
+#import "ThinkingDataCore.h"
+#endif
 
 static NSString *kTAIntegrationType = @"TA-Integration-Type";
 static NSString *kTAIntegrationVersion = @"TA-Integration-Version";

@@ -18,14 +18,14 @@
 - (void)viewDidLoad
 {
     [super viewDidLoad];
-	// Do any additional setup after loading the view, typically from a nib.
+    // Do any additional setup after loading the view, typically from a nib.
     
     NSString *appId = @"appId";
     NSString *serverUrl = @"serverUrl";
-    [TDAnalytics startWithAppId:appId serverUrl:serverUrl];
+    [TDAnalyticsExtension startWithAppId:appId serverUrl:serverUrl];
+    [TDAnalyticsExtension setDistinctId:@"1"];
     
-    [TDAnalytics login:@"user_login_id_1"];
-    [TDAnalytics track:@"login" properties:@{@"key_1": @"value_1"}];
+    [TDAnalyticsExtension track:@"login" properties:@{@"key_1": @"value_1"}];
 }
 
 - (void)didReceiveMemoryWarning
