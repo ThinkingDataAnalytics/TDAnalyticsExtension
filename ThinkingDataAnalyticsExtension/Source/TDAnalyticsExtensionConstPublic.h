@@ -11,7 +11,7 @@
 #import <Foundation/Foundation.h>
 
 static NSString * const TD_LIB_NAME = @"AppExtension";
-static NSString * const TD_LIB_VERSION = @"1.1.1";
+static NSString * const TD_LIB_VERSION = @"1.1.2";
 
 typedef NS_ENUM(NSUInteger, TDMode) {
     /// Send data to TE

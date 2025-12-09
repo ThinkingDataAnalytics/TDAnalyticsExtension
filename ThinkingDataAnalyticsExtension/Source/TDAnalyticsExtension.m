@@ -225,6 +225,7 @@ static const char * K_TD_ANALYTICS_TRACK_QUEUE = "cn.thinkingdata.TDAnalyticsExt
     NSDateFormatter *fmt = [[NSDateFormatter alloc] init];
     fmt.dateFormat = @"yyyy-MM-dd HH:mm:ss.SSS";
     fmt.timeZone = [NSTimeZone localTimeZone];
+    fmt.locale = [[NSLocale alloc] initWithLocaleIdentifier:@"en_US"];
     fmt.calendar = [[NSCalendar alloc] initWithCalendarIdentifier:NSCalendarIdentifierGregorian];
 
     eventDict = [TDJSONUtil formatDateWithFormatter:fmt dict:eventDict];
